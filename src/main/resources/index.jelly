@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<div>
+    Integrates gitlabToken credential type from the gitlab-branch-source-plugin with the k8s credential provider.
+</div>
