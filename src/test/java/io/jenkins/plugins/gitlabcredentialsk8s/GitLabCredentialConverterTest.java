@@ -21,11 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.jonesbusy.jenkins.gitlabcredentialsk8s;
+package io.jenkins.plugins.gitlabcredentialsk8s;
 
 import com.cloudbees.jenkins.plugins.kubernetes_credentials_provider.CredentialsConvertionException;
 
-import io.jonesbusy.jenkins.gitlabcredentialsk8s.GitLabCredentialConverter;
+import io.jenkins.plugins.gitlabcredentialsk8s.GitLabCredentialConverter;
 import io.jenkins.plugins.gitlabserverconfig.credentials.PersonalAccessTokenImpl;
 import hudson.Extension;
 import hudson.util.HistoricalSecrets;
