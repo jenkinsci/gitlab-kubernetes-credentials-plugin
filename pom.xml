@@ -59,7 +59,7 @@
         <dependency>
             <groupId>com.cloudbees.jenkins.plugins</groupId>
             <artifactId>kubernetes-credentials-provider</artifactId>
-            <version>1.206.v7ce2cf7b_0c8b</version>
+            <version>1.208.v128ee9800c04</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
