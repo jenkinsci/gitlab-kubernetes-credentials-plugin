@@ -1,6 +1,8 @@
 # gitlab-kubernetes-credentials-plugin
 
 [![Build Status](https://ci.jenkins.io/job/Plugins/job/gitlab-kubernetes-credentials-plugin/job/main/badge/icon)](https://ci.jenkins.io/job/Plugins/job/gitlab-kubernetes-credentials-plugin/job/main/)
+[![Coverage](https://ci.jenkins.io/job/Plugins/job/gitlab-kubernetes-credentials-plugin/job/main/badge/icon?status=${instructionCoverage}&subject=coverage&color=${colorInstructionCoverage})](https://ci.jenkins.io/job/Plugins/job/gitlab-kubernetes-credentials-plugin/job/main)
+[![LOC](https://ci.jenkins.io/job/Plugins/job/gitlab-kubernetes-credentials-plugin/job/main/badge/icon?job=test&status=${lineOfCode}&subject=line%20of%20code&color=blue)](https://ci.jenkins.io/job/Plugins/job/gitlab-kubernetes-credentials-plugin/job/main)
 [![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/gitlab-kubernetes-credentials.svg)](https://plugins.jenkins.io/gitlab-kubernetes-credentials)
 [![GitHub release](https://img.shields.io/github/release/jenkinsci/gitlab-kubernetes-credentials-plugin.svg?label=changelog)](https://github.com/jenkinsci/gitlab-kubernetes-credentials-plugin/releases/latest)
 [![GitHub license](https://img.shields.io/github/license/jenkinsci/gitlab-kubernetes-credentials-plugin)](https://github.com/jenkinsci/gitlab-kubernetes-credentials-plugin/blob/master/LICENSE.md)
