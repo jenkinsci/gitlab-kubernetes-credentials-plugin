@@ -28,18 +28,18 @@ import com.cloudbees.jenkins.plugins.kubernetes_credentials_provider.SecretToCre
 import com.cloudbees.jenkins.plugins.kubernetes_credentials_provider.SecretUtils;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-import io.jenkins.plugins.gitlabserverconfig.credentials.PersonalAccessTokenImpl;
 import hudson.Extension;
 import io.fabric8.kubernetes.api.model.Secret;
-import java.util.Base64;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import io.jenkins.plugins.gitlabserverconfig.credentials.PersonalAccessTokenImpl;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * SecretToCredentialConverter that converts {@link PersonalAccessTokenImpl }.
@@ -55,9 +55,12 @@ public class GitLabCredentialConverter extends SecretToCredentialConverter {
 
     @Override
     public PersonalAccessTokenImpl convert(Secret secret) throws CredentialsConvertionException {
-        String bearerTokenBase64 = SecretUtils.getNonNullSecretData(secret, "text", "gitlabToken credential is missing the token (in the text property)");
-        String bearerToken = SecretUtils.requireNonNull(base64DecodeToString(bearerTokenBase64), "gitlabToken credential has an invalid token (the data in the text property must be base64 encoded UTF-8)");
-        
+        String bearerTokenBase64 = SecretUtils.getNonNullSecretData(
+                secret, "text", "gitlabToken credential is missing the token (in the text property)");
+        String bearerToken = SecretUtils.requireNonNull(
+                base64DecodeToString(bearerTokenBase64),
+                "gitlabToken credential has an invalid token (the data in the text property must be base64 encoded UTF-8)");
+
         return new PersonalAccessTokenImpl(
                 CredentialsScope.GLOBAL,
                 SecretUtils.getCredentialId(secret),

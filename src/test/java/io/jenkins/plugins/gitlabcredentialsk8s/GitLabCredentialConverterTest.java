@@ -23,25 +23,24 @@
  */
 package io.jenkins.plugins.gitlabcredentialsk8s;
 
-import com.cloudbees.jenkins.plugins.kubernetes_credentials_provider.CredentialsConvertionException;
-
-import io.jenkins.plugins.gitlabcredentialsk8s.GitLabCredentialConverter;
-import io.jenkins.plugins.gitlabserverconfig.credentials.PersonalAccessTokenImpl;
-import hudson.Extension;
-import hudson.util.HistoricalSecrets;
-import io.fabric8.kubernetes.api.model.Secret;
-import io.fabric8.kubernetes.client.utils.Serialization;
-import jenkins.security.ConfidentialStore;
-import org.junit.BeforeClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-import java.io.InputStream;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
+
+import com.cloudbees.jenkins.plugins.kubernetes_credentials_provider.CredentialsConvertionException;
+import hudson.Extension;
+import hudson.util.HistoricalSecrets;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.client.utils.Serialization;
+import io.jenkins.plugins.gitlabserverconfig.credentials.PersonalAccessTokenImpl;
+import java.io.InputStream;
+import jenkins.security.ConfidentialStore;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 
 /**
  * Tests for {@link GitLabCredentialConverter}.
@@ -59,7 +58,8 @@ public class GitLabCredentialConverterTest {
     public void before() {
         ConfidentialStore csMock = Mockito.mock(ConfidentialStore.class);
         Mockito.when(ConfidentialStore.get()).thenReturn(csMock);
-        Mockito.when(csMock.randomBytes(ArgumentMatchers.anyInt())).thenAnswer( it -> new byte[ (Integer)(it.getArguments()[0])] );
+        Mockito.when(csMock.randomBytes(ArgumentMatchers.anyInt()))
+                .thenAnswer(it -> new byte[(Integer) (it.getArguments()[0])]);
     }
 
     @Test
@@ -106,8 +106,14 @@ public class GitLabCredentialConverterTest {
             assertThat(credential, notNullValue());
 
             assertThat("credential id is mapped correctly", credential.getId(), is("a-test-secret"));
-            assertThat("credential description is mapped correctly", credential.getDescription(), is("secret gitlab personal token credential from Kubernetes"));
-            assertThat("credential text mapped to the secret", credential.getToken().getPlainText(), is("someSuperDuperSecret"));
+            assertThat(
+                    "credential description is mapped correctly",
+                    credential.getDescription(),
+                    is("secret gitlab personal token credential from Kubernetes"));
+            assertThat(
+                    "credential text mapped to the secret",
+                    credential.getToken().getPlainText(),
+                    is("someSuperDuperSecret"));
         }
     }
 
