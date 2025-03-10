@@ -26,81 +26,92 @@ package io.jenkins.plugins.gitlabcredentialsk8s;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 import com.cloudbees.jenkins.plugins.kubernetes_credentials_provider.CredentialsConvertionException;
-import hudson.Extension;
 import hudson.util.HistoricalSecrets;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import io.jenkins.plugins.gitlabserverconfig.credentials.PersonalAccessTokenImpl;
 import java.io.InputStream;
 import jenkins.security.ConfidentialStore;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 /**
  * Tests for {@link GitLabCredentialConverter}.
  */
-@Extension
-public class GitLabCredentialConverterTest {
+class GitLabCredentialConverterTest {
 
-    @BeforeClass
-    public static void mockConfidentialStore() {
-        Mockito.mockStatic(ConfidentialStore.class);
-        Mockito.mockStatic(HistoricalSecrets.class);
+    private static MockedStatic<ConfidentialStore> csMockStatic;
+    private static MockedStatic<HistoricalSecrets> hsMockStatic;
+
+    @BeforeAll
+    static void mockConfidentialStore() {
+        csMockStatic = mockStatic(ConfidentialStore.class);
+        hsMockStatic = mockStatic(HistoricalSecrets.class);
     }
 
-    @Before
-    public void before() {
-        ConfidentialStore csMock = Mockito.mock(ConfidentialStore.class);
-        Mockito.when(ConfidentialStore.get()).thenReturn(csMock);
-        Mockito.when(csMock.randomBytes(ArgumentMatchers.anyInt()))
-                .thenAnswer(it -> new byte[(Integer) (it.getArguments()[0])]);
+    @BeforeEach
+    void before() {
+        ConfidentialStore csMock = mock(ConfidentialStore.class);
+        when(ConfidentialStore.get()).thenReturn(csMock);
+        when(csMock.randomBytes(anyInt())).thenAnswer(it -> new byte[(Integer) (it.getArguments()[0])]);
+    }
+
+    @AfterAll
+    static void resetMockStatic() {
+        csMockStatic.close();
+        hsMockStatic.close();
     }
 
     @Test
-    public void canConvert() throws Exception {
+    void canConvert() {
         GitLabCredentialConverter converter = new GitLabCredentialConverter();
         assertThat("correct registration of valid type", converter.canConvert("gitlabToken"), is(true));
         assertThat("incorrect type is rejected", converter.canConvert("something"), is(false));
     }
 
-    @Test(expected = CredentialsConvertionException.class)
-    public void failsToConvertASecretMissingText() throws Exception {
+    @Test
+    void failsToConvertASecretMissingText() throws Exception {
         GitLabCredentialConverter converter = new GitLabCredentialConverter();
 
         try (InputStream is = get("missing-text.yaml")) {
             Secret secret = Serialization.unmarshal(is, Secret.class);
-            assertThat("The Secret was loaded correctly from disk", notNullValue());
+            assertThat("The Secret was loaded correctly from disk", secret, notNullValue());
 
-            PersonalAccessTokenImpl credential = converter.convert(secret);
-        }
-    }
-
-    @Test(expected = CredentialsConvertionException.class)
-    public void failsToConvertWithNonBase64EncodedText() throws Exception {
-        GitLabCredentialConverter converter = new GitLabCredentialConverter();
-
-        try (InputStream is = get("text-isnt-base64.yaml")) {
-            Secret secret = Serialization.unmarshal(is, Secret.class);
-            assertThat("The Secret was loaded correctly from disk", notNullValue());
-
-            PersonalAccessTokenImpl credential = converter.convert(secret);
+            assertThrows(CredentialsConvertionException.class, () -> converter.convert(secret));
         }
     }
 
     @Test
-    public void canConvertAValidSecret() throws Exception {
+    void failsToConvertWithNonBase64EncodedText() throws Exception {
+        GitLabCredentialConverter converter = new GitLabCredentialConverter();
+
+        try (InputStream is = get("text-isnt-base64.yaml")) {
+            Secret secret = Serialization.unmarshal(is, Secret.class);
+            assertThat("The Secret was loaded correctly from disk", secret, notNullValue());
+
+            assertThrows(CredentialsConvertionException.class, () -> converter.convert(secret));
+        }
+    }
+
+    @Test
+    void canConvertAValidSecret() throws Exception {
         ConfidentialStore.get();
         GitLabCredentialConverter converter = new GitLabCredentialConverter();
 
         try (InputStream is = get("valid.yaml")) {
             Secret secret = Serialization.unmarshal(is, Secret.class);
-            assertThat("The Secret was loaded correctly from disk", notNullValue());
+            assertThat("The Secret was loaded correctly from disk", secret, notNullValue());
 
             PersonalAccessTokenImpl credential = converter.convert(secret);
             assertThat(credential, notNullValue());
@@ -119,9 +130,7 @@ public class GitLabCredentialConverterTest {
 
     private static InputStream get(String resource) {
         InputStream is = GitLabCredentialConverterTest.class.getResourceAsStream(resource);
-        if (is == null) {
-            fail("failed to load resource " + resource);
-        }
+        assertNotNull(is, "failed to load resource " + resource);
         return is;
     }
 }
