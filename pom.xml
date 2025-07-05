@@ -45,25 +45,12 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>org.jenkins-ci.plugins</groupId>
-        <artifactId>jackson2-api</artifactId>
-        <version>2.19.0-404.vb_b_0fd2fea_e10</version>
-      </dependency>
-      <!-- To remove when on bom -->
-      <dependency>
-        <groupId>org.jenkins-ci.plugins</groupId>
-        <artifactId>kubernetes-client-api</artifactId>
-        <version>7.3.1-256.v788a_0b_787114</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>com.cloudbees.jenkins.plugins</groupId>
       <artifactId>kubernetes-credentials-provider</artifactId>
-      <!-- To remove when on bom -->
-      <version>1.290.ve56494531260</version>
     </dependency>
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
