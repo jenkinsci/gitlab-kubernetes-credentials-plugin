@@ -27,9 +27,11 @@ import com.cloudbees.jenkins.plugins.kubernetes_credentials_provider.Credentials
 import com.cloudbees.jenkins.plugins.kubernetes_credentials_provider.SecretToCredentialConverter;
 import com.cloudbees.jenkins.plugins.kubernetes_credentials_provider.SecretUtils;
 import com.cloudbees.plugins.credentials.CredentialsScope;
+import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.Extension;
 import io.fabric8.kubernetes.api.model.Secret;
+import io.jenkins.plugins.gitlabserverconfig.credentials.GroupAccessTokenImpl;
 import io.jenkins.plugins.gitlabserverconfig.credentials.PersonalAccessTokenImpl;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -50,22 +52,38 @@ public class GitLabCredentialConverter extends SecretToCredentialConverter {
 
     @Override
     public boolean canConvert(String type) {
-        return "gitlabToken".equals(type);
+        return "gitlabToken".equals(type) || "gitlabGroupToken".equals(type);
     }
 
     @Override
-    public PersonalAccessTokenImpl convert(Secret secret) throws CredentialsConvertionException {
-        String bearerTokenBase64 = SecretUtils.getNonNullSecretData(
-                secret, "text", "gitlabToken credential is missing the token (in the text property)");
-        String bearerToken = SecretUtils.requireNonNull(
+    public StandardUsernamePasswordCredentials convert(Secret secret) throws CredentialsConvertionException {
+        var bearerTokenBase64 = SecretUtils.getNonNullSecretData(
+                secret, "text", "gitlabToken/gitlabGroupToken credential is missing the token (in the text property)");
+        var bearerToken = SecretUtils.requireNonNull(
                 base64DecodeToString(bearerTokenBase64),
-                "gitlabToken credential has an invalid token (the data in the text property must be base64 encoded UTF-8)");
+                "gitlabToken/gitlabGroupToken credential has an invalid token (the data in the text property must be base64 encoded UTF-8)");
 
-        return new PersonalAccessTokenImpl(
-                CredentialsScope.GLOBAL,
-                SecretUtils.getCredentialId(secret),
-                SecretUtils.getCredentialDescription(secret),
-                bearerToken);
+        var type = secret.getMetadata().getLabels().get("jenkins.io/credentials-type");
+
+        if ("gitlabGroupToken".equals(type)) {
+            var credentials = new GroupAccessTokenImpl(
+                    CredentialsScope.GLOBAL,
+                    SecretUtils.getCredentialId(secret),
+                    SecretUtils.getCredentialDescription(secret));
+            credentials.setToken(bearerToken);
+            return credentials;
+        }
+        if ("gitlabToken".equals(type)) {
+            var credentials = new PersonalAccessTokenImpl(
+                    CredentialsScope.GLOBAL,
+                    SecretUtils.getCredentialId(secret),
+                    SecretUtils.getCredentialDescription(secret));
+            credentials.setToken(bearerToken);
+            return credentials;
+        }
+
+        throw new CredentialsConvertionException(
+                "Unsupported credentials type: " + type + " for secret ID: " + SecretUtils.getCredentialId(secret));
     }
 
     /**
