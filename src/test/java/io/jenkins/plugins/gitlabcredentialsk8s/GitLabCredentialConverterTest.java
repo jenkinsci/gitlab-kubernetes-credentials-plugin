@@ -37,6 +37,7 @@ import com.cloudbees.jenkins.plugins.kubernetes_credentials_provider.Credentials
 import hudson.util.HistoricalSecrets;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.utils.Serialization;
+import io.jenkins.plugins.gitlabserverconfig.credentials.GroupAccessTokenImpl;
 import io.jenkins.plugins.gitlabserverconfig.credentials.PersonalAccessTokenImpl;
 import java.io.InputStream;
 import jenkins.security.ConfidentialStore;
@@ -105,15 +106,15 @@ class GitLabCredentialConverterTest {
     }
 
     @Test
-    void canConvertAValidSecret() throws Exception {
+    void canConvertAValidPersonalSecret() throws Exception {
         ConfidentialStore.get();
         GitLabCredentialConverter converter = new GitLabCredentialConverter();
 
-        try (InputStream is = get("valid.yaml")) {
+        try (InputStream is = get("valid-gitlab-token.yaml")) {
             Secret secret = Serialization.unmarshal(is, Secret.class);
             assertThat("The Secret was loaded correctly from disk", secret, notNullValue());
 
-            PersonalAccessTokenImpl credential = converter.convert(secret);
+            PersonalAccessTokenImpl credential = (PersonalAccessTokenImpl) converter.convert(secret);
             assertThat(credential, notNullValue());
 
             assertThat("credential id is mapped correctly", credential.getId(), is("a-test-secret"));
@@ -121,6 +122,30 @@ class GitLabCredentialConverterTest {
                     "credential description is mapped correctly",
                     credential.getDescription(),
                     is("secret gitlab personal token credential from Kubernetes"));
+            assertThat(
+                    "credential text mapped to the secret",
+                    credential.getToken().getPlainText(),
+                    is("someSuperDuperSecret"));
+        }
+    }
+
+    @Test
+    void canConvertAValidGroupSecret() throws Exception {
+        ConfidentialStore.get();
+        GitLabCredentialConverter converter = new GitLabCredentialConverter();
+
+        try (InputStream is = get("valid-gitlab-group-token.yaml")) {
+            Secret secret = Serialization.unmarshal(is, Secret.class);
+            assertThat("The Secret was loaded correctly from disk", secret, notNullValue());
+
+            GroupAccessTokenImpl credential = (GroupAccessTokenImpl) converter.convert(secret);
+            assertThat(credential, notNullValue());
+
+            assertThat("credential id is mapped correctly", credential.getId(), is("a-test-secret"));
+            assertThat(
+                    "credential description is mapped correctly",
+                    credential.getDescription(),
+                    is("secret gitlab group token credential from Kubernetes"));
             assertThat(
                     "credential text mapped to the secret",
                     credential.getToken().getPlainText(),

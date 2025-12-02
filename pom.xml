@@ -56,6 +56,8 @@
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
       <artifactId>gitlab-branch-source</artifactId>
+      <!-- Remove when on bom -->
+      <version>736.v10e786eeea_19</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
